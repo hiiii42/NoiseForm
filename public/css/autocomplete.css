@@ -1,0 +1,156 @@
+/* Capsule autocomplete. Load after app.css; .ac2 confines overrides to this editor UI. */
+.ac.ac2 {
+  min-width: 0;
+  max-width: calc(100vw - 16px);
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  border: 1px solid var(--line-2);
+  border-radius: 12px;
+  background: var(--bg-1);
+  color: var(--fg);
+  box-shadow: var(--shadow);
+  animation: none;
+  font-family: var(--f-cn);
+}
+
+.ac.ac2 .ac-head {
+  display: flex;
+  flex: none;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 4px 10px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--line);
+  color: var(--fg-1);
+  font-size: calc(12px * var(--fz));
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+.ac.ac2 .ac-head small {
+  flex: none;
+  color: var(--fg-2);
+  font-size: calc(11px * var(--fz));
+}
+
+.ac.ac2 .ac-list {
+  display: flex;
+  flex-wrap: wrap;
+  align-content: flex-start;
+  gap: 6px;
+  min-height: 0;
+  padding: 10px;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+
+.ac.ac2 .ac-list:empty {
+  display: none;
+}
+
+.ac.ac2 .ac-i {
+  display: flex;
+  flex: 0 1 auto;
+  align-items: center;
+  flex-wrap: wrap;
+  min-width: 0;
+  max-width: 100%;
+  box-sizing: border-box;
+  gap: 3px 6px;
+  padding: 5px 9px;
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: var(--bg-2);
+  color: var(--fg);
+  font-family: var(--f-cn);
+  font-size: calc(12px * var(--fz));
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+  cursor: pointer;
+}
+
+.ac.ac2 .ac-i .ac-tag {
+  min-width: 0;
+  max-width: 100%;
+  font-family: var(--f-display);
+  font-weight: 650;
+}
+
+.ac.ac2 .ac-i .ac-zh {
+  display: inline;
+  max-width: 100%;
+  white-space: normal;
+  overflow: visible;
+  color: var(--fg-2);
+  font-size: calc(11.5px * var(--fz));
+  font-style: normal;
+}
+
+.ac.ac2 .ac-i .ac-zh:empty {
+  display: none;
+}
+
+.ac.ac2 .ac-i .ac-count,
+.ac.ac2 .ac-i .ac-kind {
+  color: var(--fg-2);
+  font-size: calc(10.5px * var(--fz));
+  white-space: nowrap;
+}
+
+.ac.ac2 .ac-i .ac-count {
+  font-family: var(--f-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+.ac.ac2 .ac-i i {
+  flex: none;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--fg-3);
+}
+
+/* Same category tokens as the inspector's .rt.c-* markers. */
+.ac.ac2 .ac-i i[data-cat='1'] { background: var(--warm); }
+.ac.ac2 .ac-i i[data-cat='3'] { background: var(--lilac); }
+.ac.ac2 .ac-i i[data-cat='4'] { background: var(--tag-chr); }
+.ac.ac2 .ac-i i[data-cat='5'] { background: var(--info); }
+.ac.ac2 .ac-i i[data-cat='snip'] { background: var(--c-prompt); }
+
+.ac.ac2 .ac-i.on,
+.ac.ac2 .ac-i:hover {
+  background: var(--acc);
+  border-color: var(--acc);
+  color: var(--acc-ink);
+}
+
+.ac.ac2 .ac-i.on .ac-zh,
+.ac.ac2 .ac-i.on .ac-count,
+.ac.ac2 .ac-i.on .ac-kind,
+.ac.ac2 .ac-i:hover .ac-zh,
+.ac.ac2 .ac-i:hover .ac-count,
+.ac.ac2 .ac-i:hover .ac-kind {
+  color: var(--acc-ink);
+}
+
+.ac.ac2 .ac-i.on i,
+.ac.ac2 .ac-i:hover i {
+  box-shadow: 0 0 0 1px var(--acc-ink);
+}
+
+.ac.ac2 .ac-foot,
+.ac.ac2 .ac-empty {
+  flex: none;
+  margin: 0;
+  padding: 9px 12px;
+  color: var(--fg-2);
+  font-size: calc(11px * var(--fz));
+  line-height: 1.6;
+  overflow-wrap: anywhere;
+}
+
+.ac.ac2 .ac-foot {
+  border-top: 1px solid var(--line);
+}

@@ -1,0 +1,81 @@
+/* right-click menu (js/ui/ctxmenu.js) */
+.ctx-menu {
+  position: fixed;
+  z-index: 900;
+  min-width: calc(190px * var(--fz));
+  padding: 4px;
+  background: var(--bg-1);
+  border: 1px solid var(--line-2);
+  box-shadow: 0 10px 30px rgb(0 0 0 / 40%);
+  font-size: calc(12.5px * var(--fz));
+}
+.ctx-item {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  padding: 6px 9px;
+  border: 0;
+  background: none;
+  color: var(--fg);
+  text-align: left;
+  cursor: pointer;
+}
+.ctx-item .ic,
+.ctx-item .ctx-ic {
+  flex: none;
+  width: 15px;
+  height: 15px;
+}
+.ctx-item span {
+  flex: 1;
+}
+.ctx-item kbd {
+  font-family: var(--f-mono);
+  font-size: calc(10.5px * var(--fz));
+  color: var(--fg-3);
+}
+.ctx-item:hover,
+.ctx-item:focus-visible {
+  background: var(--acc);
+  color: var(--acc-ink);
+  outline: none;
+}
+.ctx-item:hover kbd,
+.ctx-item:focus-visible kbd {
+  color: inherit;
+}
+.ctx-item.danger {
+  color: var(--hot, #ff4d6d);
+}
+.ctx-item.danger:hover,
+.ctx-item.danger:focus-visible {
+  background: var(--hot, #ff4d6d);
+  color: var(--bg);
+}
+.ctx-item:disabled {
+  opacity: 0.4;
+  cursor: default;
+  background: none;
+  color: var(--fg);
+}
+.ctx-sep {
+  height: 1px;
+  margin: 4px 2px;
+  background: var(--line-2);
+}
+.sel-hint {
+  color: var(--fg-3);
+  font-size: calc(11px * var(--fz));
+}
+/* nax.moe attribution under the artist sample (CC BY 4.0) */
+.artist-peek .ap-credit {
+  display: block;
+  margin-top: 2px;
+  color: var(--fg-3);
+  font-size: calc(10px * var(--fz));
+}
+.artist-peek .ap-credit a {
+  color: inherit;
+  text-decoration: underline;
+}

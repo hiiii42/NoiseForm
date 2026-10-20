@@ -1,0 +1,97 @@
+/* Inline highlighting must preserve textarea advances and line boxes. */
+::highlight(nf-ed-c) { color: var(--fg-3); }
+::highlight(nf-ed-b1) { color: var(--acc); }
+::highlight(nf-ed-b2) { color: var(--neg); }
+::highlight(nf-ed-w) { color: var(--warm); }
+::highlight(nf-ed-act) { color: var(--lilac); }
+::highlight(nf-ed-pipe) { color: var(--info); }
+[data-theme='paper'] ::highlight(nf-ed-b1) { color: var(--info); }
+.ed-hl span {
+  font-weight: inherit;
+  font-size: inherit;
+  line-height: inherit;
+}
+.ed-hl .hl-comment {
+  color: var(--fg-2);
+  font-style: oblique;
+  font-synthesis: style;
+}
+.ed-hl .hl-divider {
+  color: transparent;
+  background: linear-gradient(var(--line-2), var(--line-2)) left center / 100% 1px no-repeat;
+}
+.ed-fold-layer {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+.ed-fold-toggle {
+  position: absolute;
+  left: 0;
+  width: 12px;
+  padding: 0;
+  pointer-events: auto;
+  font-family: var(--f-mono);
+  font-size: calc(11px * var(--fz));
+  line-height: 1;
+  color: var(--fg-2);
+}
+.ed-fold-toggle:hover,
+.ed-fold-toggle:focus-visible {
+  color: var(--acc);
+  background: var(--bg-2);
+  outline: 1px solid var(--line-2);
+}
+
+/* artist sample card (nax.moe) shown when hovering an artist: tag */
+.artist-peek {
+  position: fixed;
+  z-index: 95; /* above dialogs: AI 构思 artist chips peek too */
+  width: 220px;
+  padding: 8px;
+  background: var(--bg-2, var(--bg));
+  border: 1px solid var(--line-2);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+  font-size: calc(11px * var(--fz));
+  color: var(--fg);
+  pointer-events: none;
+}
+.artist-peek b { display: block; font-family: var(--f-mono); margin-bottom: 6px; word-break: break-all; }
+.artist-peek .ap-img { min-height: 60px; display: grid; place-items: center; background: var(--bg); }
+.artist-peek .ap-img img { width: 100%; height: auto; display: block; }
+.artist-peek .ap-wait { color: var(--fg-3, var(--fg-2)); padding: 20px 0; }
+.artist-peek a { display: block; margin-top: 6px; color: var(--acc); pointer-events: auto; }
+
+/* bottom grip: drag to set the editor height, double-click for auto height (js/ui/editor.js) */
+.ed-grip {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 3;
+  height: 9px;
+  cursor: row-resize;
+  touch-action: none;
+}
+.ed-grip::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: 2px;
+  width: 36px;
+  height: 3px;
+  margin-left: -18px;
+  border-radius: 2px;
+  background: var(--line-2);
+  opacity: 0.6;
+  transition: opacity 0.15s, background-color 0.15s;
+}
+.editor:hover .ed-grip::after { opacity: 1; }
+.ed-grip:hover::after,
+.ed-grip:focus-visible::after,
+.ed-resizing .ed-grip::after,
+.editor.sized .ed-grip::after { background: var(--sec, var(--acc)); opacity: 1; }
+.ed-grip:focus-visible { outline: none; }
+body.ed-resizing,
+body.ed-resizing * { cursor: row-resize !important; user-select: none !important; }

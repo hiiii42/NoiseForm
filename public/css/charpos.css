@@ -1,0 +1,65 @@
+.charpos {
+  position: absolute;
+  inset: 0;
+  z-index: 12;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--stage) 24%, transparent);
+  outline: none;
+}
+.charpos-tabs {
+  position: absolute;
+  z-index: 2;
+  top: 0;
+  left: 0;
+  right: 0;
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding: 10px 12px 8px;
+  /* opaque strip: the stage's own info row must not show through the gaps between tabs */
+  background: var(--stage);
+}
+.charpos-tabs button {
+  flex: 0 0 auto;
+  max-width: min(220px, 70%);
+  padding: 6px 9px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  border: 1px solid var(--line);
+  border-radius: 5px;
+  background: var(--bg);
+  color: var(--fg-2);
+  font: inherit;
+  font-size: calc(12px * var(--fz));
+  cursor: pointer;
+}
+.charpos-tabs button[aria-selected="true"] { border-color: var(--cc); color: var(--cc); }
+.charpos-board {
+  position: absolute;
+  outline: 1px solid color-mix(in srgb, var(--fg) 35%, transparent);
+  touch-action: none;
+  cursor: crosshair;
+}
+.charpos-board.empty {
+  background: linear-gradient(transparent 49.8%, var(--line) 50%, transparent 50.2%),
+    linear-gradient(90deg, transparent 49.8%, var(--line) 50%, transparent 50.2%), var(--stage);
+}
+.charpos-marker {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  width: 34px;
+  height: 34px;
+  border: 2px solid var(--cc);
+  border-radius: 50%;
+  background: var(--bg);
+  color: var(--cc);
+  box-shadow: 0 2px 8px #0005;
+  font: 700 14px var(--f-mono);
+  cursor: grab;
+  touch-action: none;
+}
+.charpos-marker.on { background: var(--cc); color: #171821; outline: 3px solid color-mix(in srgb, var(--cc) 30%, transparent); }
+.charpos-marker:active { cursor: grabbing; }
+.charpos-done { position: absolute; z-index: 2; right: 16px; bottom: 16px; }
+.charpos button:focus-visible { outline: 2px solid var(--fg); outline-offset: 3px; }

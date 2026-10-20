@@ -1,0 +1,87 @@
+/* Load after app.css. Colors follow all seven base.css theme palettes. */
+.composition-presets {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.composition-presets .sel {
+  flex: 1;
+  min-width: 0;
+}
+
+.composition-random {
+  flex: none;
+  color: var(--fg-1);
+}
+
+.composition-readout {
+  align-self: center;
+  padding: 3px 7px;
+  border: 1px solid var(--line);
+  color: var(--fg);
+  background: var(--bg-1);
+  font-size: calc(14px * var(--fz));
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.composition-readout:hover,
+.composition-readout[aria-expanded='true'] {
+  border-color: var(--fg-2);
+  background: var(--bg-2);
+}
+
+.composition-track {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-width: 0;
+  padding: 0 2px;
+  color: var(--fg-1);
+}
+
+.composition-range {
+  flex: 1;
+  min-width: 0;
+  --c: var(--fg);
+}
+
+/* These states describe the current size; dragging still chooses a ≤1MP size. */
+.composition-track.is-approximate {
+  opacity: 0.6;
+}
+
+.composition-track.is-outside {
+  opacity: 0.4;
+}
+
+.composition-track:focus-within {
+  opacity: 1;
+}
+
+.composition-orientation {
+  display: block;
+  flex: none;
+  border: 1.5px solid currentColor;
+}
+
+.composition-orientation.is-landscape {
+  width: 17px;
+  height: 10px;
+}
+
+.composition-orientation.is-portrait {
+  width: 10px;
+  height: 17px;
+}
+
+.composition-readout:focus-visible,
+.composition-random:focus-visible,
+.composition-range:focus-visible {
+  outline: 2px solid var(--acc);
+  outline-offset: 3px;
+}

@@ -1,0 +1,165 @@
+/* Archive actions are siblings of the primary button, never nested buttons. */
+.thumb:not(.pending) {
+  container-type: inline-size;
+}
+.thumb-open {
+  display: block;
+  width: 100%;
+}
+.thumb-open:focus-visible {
+  outline: 2px solid var(--acc);
+  outline-offset: -2px;
+}
+.thumb-actions {
+  position: absolute;
+  right: 5px;
+  bottom: 24px;
+  z-index: 2;
+  display: flex;
+  gap: 5px;
+  opacity: 0;
+  transform: translateY(3px);
+  pointer-events: none;
+  transition: opacity 0.12s, transform 0.12s;
+}
+.thumb:hover .thumb-actions,
+.thumb:focus-within .thumb-actions {
+  opacity: 1;
+  transform: none;
+  pointer-events: auto;
+}
+.thumb-action {
+  display: grid;
+  place-items: center;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border: 1px solid var(--line-2);
+  border-radius: 50%;
+  background: var(--bg-1);
+  color: var(--fg);
+  box-shadow: 0 2px 8px rgb(0 0 0 / 25%);
+}
+.thumb-action .ic {
+  width: 16px;
+  height: 16px;
+}
+.thumb-action:hover,
+.thumb-action:focus-visible {
+  background: var(--acc);
+  color: var(--acc-ink);
+  border-color: var(--acc);
+}
+.thumb-action:focus-visible {
+  outline: 2px solid var(--fg);
+  outline-offset: 2px;
+}
+.thumb-action:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+/* Keep the badge row below the actions and let clicks reach the primary button. */
+.thumb .ck {
+  pointer-events: none;
+}
+@media (hover: none) and (pointer: coarse) {
+  .thumb-actions {
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
+  }
+  .thumb-action {
+    width: 32px;
+    height: 32px;
+  }
+}
+@container (max-width: 90px) {
+  .thumb-actions {
+    right: 3px;
+    gap: 4px;
+  }
+  .thumb-action {
+    width: 22px;
+    height: 22px;
+  }
+}
+
+/* Pin the displayed result's box while an original with any aspect ratio is shown. */
+.frame-in.showing-original {
+  width: var(--original-width);
+  height: var(--original-height);
+  cursor: default;
+}
+.frame-in.showing-original img {
+  width: 100%;
+  height: 100%;
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+}
+.original-label {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  z-index: 5;
+  padding: 4px 7px;
+  border: 1px solid var(--line-2);
+  background: var(--bg-1);
+  color: var(--fg);
+  font-family: var(--f-mono);
+  font-size: calc(11px * var(--fz));
+  line-height: 1.3;
+  pointer-events: none;
+}
+.original-tool {
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+}
+.original-tool[aria-pressed='true'] {
+  background: var(--acc);
+  color: var(--acc-ink);
+}
+.original-tool:disabled {
+  pointer-events: auto;
+  cursor: default;
+}
+.original-tool:focus-visible {
+  outline: 2px solid var(--acc);
+  outline-offset: -3px;
+}
+@media (prefers-reduced-motion: reduce) {
+  .thumb-actions {
+    transition: none;
+  }
+}
+
+/* stage zoom (wheel / Ctrl+wheel): the zoomed image may fill the whole stage area (.view-main clips it) */
+.frame-in { overflow: hidden; cursor: default; }
+.frame-in.zoomed { overflow: visible; box-shadow: none; }
+/* zoomed: the image may fill the whole stage (#stage clips); the slug line and the toolbar stay on top */
+.stage.zooming #view { cursor: grab; }
+.stage.zooming #view:active { cursor: grabbing; }
+.stage.zooming .frame { background: none; }
+.view-slug { position: relative; z-index: 4; }
+.stage.zooming .view-slug > span { padding: 2px 6px; background: color-mix(in srgb, var(--bg) 78%, transparent); backdrop-filter: blur(6px); }
+.frame-in img { position: relative; z-index: 1; transform-origin: center center; will-change: transform; }
+.view-main .batch { z-index: 2; }
+.zoom-badge {
+  display: inline-flex; align-items: center; gap: 5px; cursor: pointer; pointer-events: auto;
+  position: absolute; right: 8px; top: 8px; z-index: 5;
+  padding: 5px 10px; font-size: calc(12.5px * var(--fz)); font-weight: 700;
+  background: color-mix(in srgb, var(--bg) 85%, transparent); color: var(--fg);
+  border: 1px solid var(--fg-3); backdrop-filter: blur(6px);
+}
+.zoom-badge[hidden] { display: none; }
+.zoom-badge .ic { width: 15px; height: 15px; }
+.zoom-badge:hover, .zoom-badge:focus-visible { background: var(--acc); color: var(--acc-ink); border-color: var(--acc); }
+
+/* sections the selected model cannot use */
+.sec.disabled .sec-b { opacity: 0.45; }
+.sec.disabled:not(.has-items) .sec-b { pointer-events: none; }
+.sec.disabled .sec-h .unsup { opacity: 1; color: var(--fg-2); margin-right: 6px; font-size: calc(10.5px * var(--fz)); }
+
+.lock-strip.paused .ls-dot { animation: none; opacity: 0.55; }

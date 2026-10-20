@@ -1,0 +1,33 @@
+{
+  "compilerOptions": {
+    "allowJs": true,
+    "checkJs": true,
+    "strict": false,
+    "noEmit": true,
+    "target": "ES2024",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "lib": [
+      "ES2024",
+      "DOM",
+      "DOM.Iterable"
+    ],
+    "types": []
+  },
+  "include": [
+    "tools/typecheck-contracts.ts",
+    "public/js/types.js",
+    "public/js/data.js",
+    "public/js/persist.js",
+    "public/js/promptfmt.js",
+    "public/js/queue/policy.js",
+    "public/js/domain/cost.js",
+    "public/js/importschema.js",
+    "public/js/promptedit.js",
+    "public/js/callbacks.js",
+    "public/js/domain/generation.js",
+    "public/js/domain/chunks.js",
+    "public/js/app/events.js",
+    "public/js/diag.js"
+  ]
+}

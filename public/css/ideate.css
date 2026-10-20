@@ -1,0 +1,34 @@
+/* AI assistant (ideate) dialog — 1.7.0 additions; base .ide-* rules live in app.css */
+.ide-modal .ide-gen[hidden], .ide-modal .tgl[hidden] { display: none; }
+.ide-modal .ide { gap: 12px; }
+.ide-modal .ide-cur { white-space: pre-wrap; overflow-wrap: anywhere; }
+.ide-modal .ide-grp { grid-template-columns: 76px minmax(0, 1fr); }
+.ide-modal .ide-t { max-width: 100%; overflow-wrap: anywhere; text-align: left; }
+.ide-modal .ide-t:focus-visible { outline: 2px solid var(--info); outline-offset: 2px; }
+.ide-modal .ide-remove { text-decoration: none; }
+.ide-modal .ide-remove[aria-pressed='true'] {
+  text-decoration: line-through;
+  color: var(--neg);
+  border-color: color-mix(in srgb, var(--neg) 50%, transparent);
+  background: color-mix(in srgb, var(--neg) 8%, transparent);
+}
+.ide-modal .ide-replace { flex-wrap: wrap; gap: 3px 6px; text-decoration: none; }
+.ide-modal .ide-replace[aria-pressed='false'] { opacity: .6; }
+.ide-modal .ide-replace[aria-pressed='true'] .ide-from { color: var(--fg-2); text-decoration: line-through; }
+.ide-modal .ide-arrow { color: var(--info); }
+.ide-modal .ide-chars { display: grid; gap: 8px; }
+.ide-modal .ide-apply { white-space: normal; }
+.ide-modal .ide-character-edits { display: grid; gap: 8px; padding: 10px; border: 1px solid var(--line); border-radius: 8px; min-width: 0; }
+.ide-modal .ide-character-title { margin: 0; font-size: 1em; font-weight: 500; overflow-wrap: anywhere; }
+.ide-modal .ide-character-edits button:disabled { opacity: .4; cursor: default; }
+.ide-modal .ide-position { font-variant-numeric: tabular-nums; }
+.ide-modal .ide-artist-choice { display: inline-flex; align-items: center; gap: 3px; max-width: 100%; }
+.ide-modal .ide-artist-link { padding: 5px; color: var(--fg-2); text-decoration: none; flex-shrink: 0; }
+.ide-modal .ide-artist-link:hover, .ide-modal .ide-artist-link:focus-visible { color: var(--info); }
+.ide-modal .ide > .seg { flex-wrap: wrap; }
+.ide-modal .ide-artist-input { width: 100%; resize: vertical; min-height: 64px; }
+[data-tone='light'] .ide-modal .ide-remove[aria-pressed='true'] { background: color-mix(in srgb, var(--neg) 6%, var(--bg-1)); }
+@media (max-width: 560px) {
+  .ide-modal .ide-grp { grid-template-columns: minmax(0, 1fr); gap: 4px; }
+  .ide-modal .modal-s { display: none; }
+}

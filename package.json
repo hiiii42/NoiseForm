@@ -1,0 +1,22 @@
+{
+  "name": "noiseform",
+  "version": "1.8.7",
+  "private": true,
+  "license": "AGPL-3.0-only",
+  "description": "An avant-garde NovelAI image generation client",
+  "scripts": {
+    "start": "node server.js",
+    "check": "node tools/check.mjs",
+    "typecheck": "tsc -p tsconfig.check.json",
+    "typecheck:coverage": "node tools/typecheck-coverage.mjs",
+    "test": "npm run check && npm run test:unit && npm run test:browser",
+    "test:unit": "node --test \"test/unit/*.test.mjs\"",
+    "test:browser": "node test/browser/run.mjs"
+  },
+  "engines": {
+    "node": ">=22"
+  },
+  "devDependencies": {
+    "typescript": "^7.0.2"
+  }
+}

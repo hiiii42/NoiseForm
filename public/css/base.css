@@ -1,0 +1,670 @@
+/* ==========================================================================
+   NOISEFORM — base: fonts, theme tokens, reset, primitives
+   ========================================================================== */
+
+@font-face {
+  font-family: 'Archivo';
+  src: url('../fonts/archivo-var.woff2') format('woff2');
+  font-weight: 100 900;
+  font-stretch: 62% 125%;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'JetBrains Mono';
+  src: url('../fonts/jetbrains-mono-var.woff2') format('woff2');
+  font-weight: 100 800;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Source Sans 3';
+  src: url('../fonts/source-sans-3-var.woff2') format('woff2');
+  font-weight: 300 800;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Eczar';
+  src: url('../fonts/eczar-var.woff2') format('woff2');
+  font-weight: 400 800;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Instrument Serif';
+  src: url('../fonts/instrument-serif-italic.woff2') format('woff2');
+  font-style: italic;
+  font-weight: 400;
+  font-display: swap;
+}
+
+:root {
+  --f-display: 'Archivo', 'Helvetica Neue', Arial, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  --f-mono: 'JetBrains Mono', ui-monospace, 'Cascadia Mono', Consolas, 'PingFang SC', 'Microsoft YaHei', monospace;
+  --f-serif: 'Instrument Serif', 'Times New Roman', serif;
+  --f-cn: 'PingFang SC', 'Microsoft YaHei', 'Noto Sans SC', sans-serif;
+  /* section / dialog titles; themes may swap it (NovelAI → Eczar) */
+  --f-head: var(--f-display);
+
+  /* Text-size multiplier: .8–1.5, including all four legacy scales. */
+  --fz: 1;
+  /* columns grow with the text so labels keep fitting */
+  --panel-default-w: max(calc(352px + 80px * var(--fz)), calc(clamp(396px, calc(8.75vw + 284px), 452px) + (var(--fz) - 1) * 320px));
+  --archive-default-w: max(144px, calc(144px * var(--fz)));
+  --panel-w: var(--panel-default-w);
+  --archive-w: var(--archive-default-w);
+  --rv-w: clamp(236px, calc(16vw * var(--fz)), 340px);
+  --top-h: max(56px, calc(44px * var(--fz)));
+  --ease: cubic-bezier(.2, .8, .2, 1);
+  --ease-io: cubic-bezier(.7, 0, .2, 1);
+
+  /* section accents resolve per theme */
+  --c-prompt: var(--acc);
+  --c-neg: var(--neg);
+  --c-char: var(--lilac);
+  --c-image: var(--fg);
+  --c-ai: var(--warm);
+  --c-base: var(--info);
+  --c-vibe: var(--lilac);
+  --c-ref: var(--warm);
+
+  /* poster jelly blobs (gradient stops) */
+  --blob-a: #ff2e9a;
+  --blob-b: #ffb3d4;
+  --blob-c: #c8ff2e;
+  /* positive / added (diff, chips) and the character-tag colour in the review column */
+  --ok: #3ddc84;
+  --tag-chr: #2ee6c8;
+  /* prompt emphasis backgrounds: {up} and [down] */
+  --emph-up: var(--acc);
+  --emph-dn: var(--neg);
+  --emph-k: 14%;
+  --emph-k2: 16%;
+}
+
+/* INK — dark darkroom (refs: neon foam on black, topographic contours) */
+:root,
+[data-theme='ink'] {
+  color-scheme: dark;
+  --bg: #0b0a0e;
+  --bg-1: #121117;
+  --bg-2: #1b1a21;
+  --bg-3: #24232b;
+  --fg: #ede8da;
+  --fg-1: #c4bfb2;
+  --fg-2: #96918a;
+  --fg-3: #615d55;
+  --line: rgba(237, 232, 218, 0.11);
+  --line-2: rgba(237, 232, 218, 0.24);
+  --acc: #c8ff2e;
+  --acc-ink: #0b0a0e;
+  --neg: #ff2e7e;
+  --info: #5b78ff;
+  --warm: #ff5a14;
+  --lilac: #b9a7ff;
+  --stage: #08070a;
+  --glass: rgba(18, 17, 23, 0.72);
+  --shadow: 0 40px 90px -30px rgba(0, 0, 0, 0.85);
+  --grain-op: 0.07;
+  --c-image: #ede8da;
+}
+
+/* PAPER — risograph poster (refs: ascii poster, halftone, MIND typography) */
+[data-theme='paper'] {
+  color-scheme: light;
+  --bg: #efeadc;
+  --bg-1: #e8e2d1;
+  --bg-2: #ded7c4;
+  --bg-3: #d2cab5;
+  --fg: #111016;
+  --fg-1: #333137;
+  --fg-2: #625d52;
+  --fg-3: #918a78;
+  --line: rgba(17, 16, 22, 0.13);
+  --line-2: rgba(17, 16, 22, 0.3);
+  --acc: #1c3ff0;
+  --acc-ink: #f4f0e4;
+  --neg: #e5145d;
+  --info: #1c3ff0;
+  --warm: #ff4d0d;
+  --lilac: #7b62ff;
+  --stage: #f3efe3;
+  --glass: rgba(239, 234, 220, 0.8);
+  --shadow: 0 40px 80px -36px rgba(40, 30, 10, 0.45);
+  --grain-op: 0.1;
+  --c-image: #111016;
+  --blob-a: #a996ff;
+  --blob-b: #c4b8ff;
+  --blob-c: #9179ff;
+  --ok: #0d8a43;
+  --tag-chr: #0a9a84;
+  --emph-up: #9bd400;
+  --emph-k: 22%;
+}
+
+/* ---------- soft palettes ----------
+   Calmer surfaces, lower-chroma accents and no neon. Light/dark is mirrored in
+   [data-tone] (set alongside data-theme) for the few rules that depend on it. */
+
+/* NOVELAI — the classic NovelAI Dark look: navy surfaces, cream headers,
+   Eczar titles + Source Sans text, orange-red / blue prompt emphasis. */
+[data-theme='novelai'] {
+  color-scheme: dark;
+  --f-display: 'Source Sans 3', 'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif;
+  --f-head: 'Eczar', Georgia, 'Songti SC', serif;
+  --bg: #191b31; /* Background */
+  --bg-1: #22253f; /* Foreground */
+  --bg-2: #2a2e4c;
+  --bg-3: #343858;
+  --fg: #ffffff; /* Paragraph */
+  --fg-1: #d5d7ea;
+  --fg-2: #9fa2c2;
+  --fg-3: #6c6f93;
+  --line: rgba(255, 255, 255, 0.09);
+  --line-2: rgba(255, 255, 255, 0.2);
+  --acc: #f5f3c2; /* Header */
+  --acc-ink: #13152c;
+  --neg: #ff7878; /* Warning / Error */
+  --info: #9cdcff; /* new user text */
+  --warm: #ffb98a;
+  --lilac: #f4c7ff; /* edited text */
+  --stage: #13152c; /* Dark Background */
+  --glass: rgba(25, 27, 49, 0.78);
+  --shadow: 0 36px 80px -30px rgba(5, 6, 20, 0.85);
+  --grain-op: 0.025;
+  --c-image: #ffffff;
+  --blob-a: #ec56a7;
+  --blob-b: #f5f3c2;
+  --blob-c: #9773ff;
+  --ok: #75cf67;
+  --tag-chr: #a5c9ff;
+  --emph-up: #b83700; /* High Intensity */
+  --emph-dn: #0466ce; /* Low Intensity */
+  --emph-k: 42%;
+  --emph-k2: 48%;
+}
+
+/* DUSK — muted plum night, dusty-rose accent */
+[data-theme='dusk'] {
+  color-scheme: dark;
+  --bg: #1c1a22;
+  --bg-1: #24212c;
+  --bg-2: #2d2a37;
+  --bg-3: #373342;
+  --fg: #ede7ef;
+  --fg-1: #cbc3cf;
+  --fg-2: #9d94a3;
+  --fg-3: #686070;
+  --line: rgba(237, 231, 239, 0.1);
+  --line-2: rgba(237, 231, 239, 0.22);
+  --acc: #e8aab9;
+  --acc-ink: #1c1a22;
+  --neg: #f0939b;
+  --info: #a3b5ec;
+  --warm: #ebb98f;
+  --lilac: #c3b3ea;
+  --stage: #17151c;
+  --glass: rgba(28, 26, 34, 0.78);
+  --shadow: 0 36px 80px -30px rgba(0, 0, 0, 0.75);
+  --grain-op: 0.04;
+  --c-image: #ede7ef;
+  --blob-a: #e8aab9;
+  --blob-b: #f4d6c8;
+  --blob-c: #a99ce2;
+  --ok: #9fd4a8;
+  --tag-chr: #8fd3c6;
+}
+
+/* MOSS — deep green-grey, sage accent */
+[data-theme='moss'] {
+  color-scheme: dark;
+  --bg: #161b19;
+  --bg-1: #1d2421;
+  --bg-2: #252d29;
+  --bg-3: #2e3833;
+  --fg: #e5eae1;
+  --fg-1: #c0c9bc;
+  --fg-2: #919c90;
+  --fg-3: #5f6a5e;
+  --line: rgba(229, 234, 225, 0.1);
+  --line-2: rgba(229, 234, 225, 0.22);
+  --acc: #abd5a0;
+  --acc-ink: #161b19;
+  --neg: #eb958c;
+  --info: #92bbd9;
+  --warm: #e4ba7f;
+  --lilac: #b9b1e1;
+  --stage: #121614;
+  --glass: rgba(22, 27, 25, 0.78);
+  --shadow: 0 36px 80px -30px rgba(0, 0, 0, 0.75);
+  --grain-op: 0.04;
+  --c-image: #e5eae1;
+  --blob-a: #abd5a0;
+  --blob-b: #ebe5c2;
+  --blob-c: #92bbd9;
+  --ok: #abd5a0;
+  --tag-chr: #8ad0c2;
+}
+
+/* MIST — light blue-grey, steel-blue accent */
+[data-theme='mist'] {
+  color-scheme: light;
+  --bg: #e9edf1;
+  --bg-1: #e0e5eb;
+  --bg-2: #d5dce3;
+  --bg-3: #c8d0d9;
+  --fg: #1d2530;
+  --fg-1: #364150;
+  --fg-2: #586473;
+  --fg-3: #85909d;
+  --line: rgba(29, 37, 48, 0.12);
+  --line-2: rgba(29, 37, 48, 0.27);
+  --acc: #3b6893;
+  --acc-ink: #f3f6f9;
+  --neg: #b4475f;
+  --info: #3b6893;
+  --warm: #b0652b;
+  --lilac: #6c5dae;
+  --stage: #eff2f5;
+  --glass: rgba(233, 237, 241, 0.82);
+  --shadow: 0 36px 80px -36px rgba(30, 45, 65, 0.4);
+  --grain-op: 0.05;
+  --c-image: #1d2530;
+  --blob-a: #9fc1df;
+  --blob-b: #dce7f1;
+  --blob-c: #b8afe2;
+  --ok: #2f7d55;
+  --tag-chr: #1f7f73;
+  --emph-k: 18%;
+}
+
+/* LINEN — warm oat paper, terracotta accent */
+[data-theme='linen'] {
+  color-scheme: light;
+  --bg: #f2ede4;
+  --bg-1: #ebe4d8;
+  --bg-2: #e1d9cb;
+  --bg-3: #d5ccbc;
+  --fg: #2a2420;
+  --fg-1: #463e37;
+  --fg-2: #6b6259;
+  --fg-3: #998f84;
+  --line: rgba(42, 36, 32, 0.12);
+  --line-2: rgba(42, 36, 32, 0.27);
+  --acc: #a4583a;
+  --acc-ink: #f8f3ec;
+  --neg: #ad3f56;
+  --info: #3d6d84;
+  --warm: #b8732a;
+  --lilac: #7a66a6;
+  --stage: #f6f2ea;
+  --glass: rgba(242, 237, 228, 0.84);
+  --shadow: 0 36px 80px -36px rgba(70, 50, 30, 0.38);
+  --grain-op: 0.07;
+  --c-image: #2a2420;
+  --blob-a: #e5b49d;
+  --blob-b: #f3dfc8;
+  --blob-c: #a9c0a2;
+  --ok: #4f7d3a;
+  --tag-chr: #2f7d70;
+  --emph-k: 18%;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+html,
+body {
+  height: 100%;
+}
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--f-display);
+  font-size: calc(15.5px * var(--fz));
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+  transition: background-color 0.4s var(--ease), color 0.4s var(--ease);
+}
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+button {
+  cursor: pointer;
+  background: none;
+  border: 0;
+  padding: 0;
+}
+::selection {
+  background: var(--acc);
+  color: var(--acc-ink);
+}
+img {
+  display: block;
+  max-width: 100%;
+}
+[hidden] {
+  display: none !important;
+}
+
+/* scrollbars: hairline */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--line-2) transparent;
+}
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--line-2);
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* film grain over everything (ref: textured fabric / print) */
+.grain {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 100;
+  opacity: var(--grain-op);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='220' height='220'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 .5  0 0 0 0 .5  0 0 0 0 .5  0 0 0 1.4 -.2'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  mix-blend-mode: overlay;
+}
+
+.ic {
+  width: 16px;
+  height: 16px;
+  flex: none;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.6;
+  stroke-linecap: square;
+  stroke-linejoin: miter;
+}
+
+/* ---------- type primitives ---------- */
+.mono {
+  font-family: var(--f-mono);
+}
+.t-label {
+  font-family: var(--f-mono);
+  font-size: calc(11.5px * var(--fz));
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--fg-2);
+}
+.cn {
+  font-family: var(--f-cn);
+  letter-spacing: 0.02em;
+  text-transform: none;
+}
+
+/* ---------- buttons ---------- */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  height: 30px;
+  padding: 0 11px;
+  border: 1px solid var(--line-2);
+  font-family: var(--f-mono);
+  font-size: calc(12px * var(--fz));
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  color: var(--fg);
+  transition: background-color 0.15s, color 0.15s, border-color 0.15s;
+}
+.btn:hover {
+  background: var(--fg);
+  color: var(--bg);
+  border-color: var(--fg);
+}
+.btn:disabled {
+  opacity: 0.35;
+  pointer-events: none;
+}
+.btn.solid {
+  background: var(--acc);
+  color: var(--acc-ink);
+  border-color: var(--acc);
+}
+.btn.solid:hover {
+  background: var(--fg);
+  border-color: var(--fg);
+  color: var(--bg);
+}
+.btn.ghost {
+  border-color: transparent;
+}
+.btn.ghost:hover {
+  border-color: var(--fg);
+}
+.btn.sq {
+  width: 30px;
+  padding: 0;
+}
+.sel.sm {
+  height: 24px;
+  font-size: calc(11.5px * var(--fz));
+  padding-left: 7px;
+}
+.btn.sm {
+  height: 24px;
+  padding: 0 8px;
+  font-size: calc(11px * var(--fz));
+}
+.btn.sm.sq {
+  width: 24px;
+}
+.btn.danger:hover {
+  background: var(--neg);
+  border-color: var(--neg);
+  color: #fff;
+}
+
+/* ---------- form fields ---------- */
+.inp,
+.sel {
+  height: 30px;
+  min-width: 0;
+  padding: 0 9px;
+  background: transparent;
+  border: 1px solid var(--line-2);
+  border-radius: 0;
+  font-family: var(--f-mono);
+  font-size: calc(13.5px * var(--fz));
+  outline: none;
+  transition: border-color 0.15s, background-color 0.15s;
+}
+.inp:focus,
+.sel:focus {
+  border-color: var(--sec, var(--acc));
+  background: var(--bg-1);
+}
+.inp::placeholder {
+  color: var(--fg-3);
+}
+.inp[type='number'] {
+  -moz-appearance: textfield;
+}
+.inp[type='number']::-webkit-inner-spin-button,
+.inp[type='number']::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+.sel {
+  appearance: none;
+  -webkit-appearance: none;
+  padding-right: 28px;
+  cursor: pointer;
+  text-transform: uppercase;
+  font-size: calc(12.5px * var(--fz));
+  letter-spacing: 0.04em;
+  background-image: linear-gradient(45deg, transparent 50%, currentColor 50%), linear-gradient(135deg, currentColor 50%, transparent 50%);
+  background-position: calc(100% - 14px) 50%, calc(100% - 9px) 50%;
+  background-size: 5px 5px;
+  background-repeat: no-repeat;
+}
+.sel option {
+  background: var(--bg-1);
+  color: var(--fg);
+  text-transform: none;
+}
+
+/* range slider: halftone dot track, ink fill, slab thumb */
+.rng {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 22px;
+  margin: 0;
+  background: transparent;
+  cursor: ew-resize;
+  --p: 50%;
+  --c: var(--sec, var(--acc));
+}
+.rng:focus {
+  outline: none;
+}
+.rng::-webkit-slider-runnable-track {
+  height: 22px;
+  background:
+    linear-gradient(var(--c), var(--c)) 0 50% / var(--p) 3px no-repeat,
+    radial-gradient(circle, var(--fg-3) 1.1px, transparent 1.6px) 0 50% / 6px 6px repeat-x;
+}
+.rng::-moz-range-track {
+  height: 22px;
+  background:
+    linear-gradient(var(--c), var(--c)) 0 50% / var(--p) 3px no-repeat,
+    radial-gradient(circle, var(--fg-3) 1.1px, transparent 1.6px) 0 50% / 6px 6px repeat-x;
+}
+.rng::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 9px;
+  height: 18px;
+  margin-top: 2px;
+  background: var(--c);
+  border: 0;
+  border-radius: 0;
+  box-shadow: 0 0 0 2px var(--bg);
+  transition: transform 0.15s var(--ease);
+}
+.rng::-moz-range-thumb {
+  width: 9px;
+  height: 18px;
+  background: var(--c);
+  border: 0;
+  border-radius: 0;
+  box-shadow: 0 0 0 2px var(--bg);
+}
+.rng:hover::-webkit-slider-thumb,
+.rng:focus-visible::-webkit-slider-thumb {
+  transform: scaleY(1.25);
+}
+
+/* toggle: square switch with ON/OFF mono label */
+.tgl {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  user-select: none;
+  font-family: var(--f-mono);
+  font-size: calc(11.5px * var(--fz));
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--fg-1);
+}
+.tgl input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+.tgl .sw {
+  position: relative;
+  width: 30px;
+  height: 14px;
+  border: 1px solid var(--line-2);
+  transition: border-color 0.2s, background-color 0.2s;
+}
+.tgl .sw::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 8px;
+  height: 8px;
+  background: var(--fg-2);
+  transition: transform 0.25s var(--ease), background-color 0.2s;
+}
+.tgl input:checked + .sw {
+  border-color: var(--sec, var(--acc));
+  background: var(--sec, var(--acc));
+}
+.tgl input:checked + .sw::after {
+  transform: translateX(16px);
+  background: var(--bg);
+}
+.tgl input:focus-visible + .sw {
+  outline: 1px dashed var(--fg);
+  outline-offset: 2px;
+}
+
+/* segmented control */
+.seg {
+  display: inline-flex;
+  border: 1px solid var(--line-2);
+}
+.seg button {
+  min-width: 30px;
+  height: 28px;
+  padding: 0 8px;
+  font-family: var(--f-mono);
+  font-size: calc(12.5px * var(--fz));
+  color: var(--fg-1);
+  border-right: 1px solid var(--line);
+  transition: background-color 0.15s, color 0.15s;
+}
+.seg button:last-child {
+  border-right: 0;
+}
+.seg button:hover {
+  color: var(--fg);
+  background: var(--bg-2);
+}
+.seg button.on {
+  background: var(--sec, var(--acc));
+  color: var(--bg);
+}
+
+.kbd {
+  display: inline-block;
+  padding: 1px 5px;
+  border: 1px solid var(--line-2);
+  font-family: var(--f-mono);
+  font-size: calc(11px * var(--fz));
+  line-height: 1.3;
+  color: var(--fg-1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}

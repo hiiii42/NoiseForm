@@ -1,0 +1,68 @@
+/* These tokens also supersede app.css's compact desktop column overrides. */
+:root:root {
+  --archive-w: var(--archive-default-w);
+  --panel-review-w: 0px;
+  --panel-max-w: max(0px, min(55vw, calc(100vw - var(--archive-w) - var(--panel-review-w) - 360px)));
+  --panel-w: min(var(--panel-max-w), max(340px, var(--panel-user-w, var(--panel-default-w))));
+}
+:root:has(body.rv-wide) {
+  --panel-review-w: var(--rv-w);
+}
+.panel-resize {
+  position: absolute;
+  inset: 0 0 0 auto;
+  width: 8px;
+  z-index: 12;
+  cursor: col-resize;
+  touch-action: none;
+}
+.panel-resize::after {
+  content: '';
+  position: absolute;
+  inset: 0 0 0 auto;
+  width: 2px;
+  background: var(--line-2);
+  transition: background-color .15s;
+}
+.panel-resize:hover::after,
+.panel-resize:focus-visible::after,
+.panel-resizing .panel-resize::after {
+  background: var(--acc);
+}
+.panel-resize:focus-visible {
+  outline: 1px dashed var(--acc);
+}
+body.panel-resizing,
+body.panel-resizing * {
+  cursor: col-resize !important;
+  user-select: none !important;
+}
+.panel-resize-measure {
+  position: fixed;
+  width: var(--panel-max-w);
+  height: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+.text-size-row { min-width: 0; }
+.text-size-track { flex: 1; min-width: 0; }
+.text-size-ticks { display: flex; justify-content: space-between; padding: 0 4px; }
+.text-size-ticks i { height: 3px; width: 1px; background: var(--fg-3); }
+.text-size-value { min-width: 4ch; text-align: right; font-size: calc(12px * var(--fz)); }
+.text-size-slider:focus-visible { outline: 1px dashed var(--acc); outline-offset: 3px; }
+@media (max-width: 900px) {
+  .panel-resize { display: none; }
+}
+
+/* The page itself never scrolls: only the panels inside it do. At large text sizes / browser zoom the
+   panel column's content overflowed into the document, and anything that scrolled into view (an open
+   menu, a focused field, the autocomplete list) then lifted the whole page. */
+html,
+body {
+  overflow: clip;
+}
+.app,
+.panel {
+  overflow-y: clip;
+}
+.text-size-ticks i.def { height: 6px; background: var(--acc); }

@@ -1,0 +1,57 @@
+/* Inline decoration must not change glyph advance, line boxes, or wrap opportunities. */
+.ed-hl .tok-chunk {
+  background: color-mix(in srgb, var(--acc) 20%, var(--bg));
+  border-radius: 6px;
+  text-decoration: underline solid var(--acc);
+  text-underline-offset: 3px;
+}
+.ed-hl .tok-chunk.unknown {
+  background: color-mix(in srgb, var(--fg-3) 12%, var(--bg));
+  text-decoration: underline dashed var(--fg-3);
+}
+/* Existing emphasis rules use bold; mirror glyph metrics must always match the textarea. */
+.ed-hl span { font-weight: inherit; font-size: inherit; }
+.chunk-tooltip {
+  position: fixed;
+  z-index: 90;
+  pointer-events: none;
+  width: max-content;
+  max-width: min(380px, calc(100vw - 16px));
+  max-height: min(300px, calc(100vh - 16px));
+  overflow: hidden;
+  padding: 10px 12px;
+  background: var(--bg-1);
+  color: var(--fg);
+  border: 1px solid var(--acc);
+  box-shadow: var(--shadow);
+  font-size: calc(13px * var(--fz));
+  line-height: 1.6;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+.chunk-tooltip strong { color: var(--acc); font-size: calc(13px * var(--fz)); }
+.chunk-tooltip div { margin-top: 4px; }
+.chunk-pop { width: 660px; overflow: auto; font-size: calc(13px * var(--fz)); }
+.chunk-layout { display: grid; grid-template-columns: minmax(130px, 2fr) minmax(0, 3fr); gap: 14px; min-height: 0; }
+.chunk-list { overflow-y: auto; max-height: 360px; min-width: 0; }
+.chunk-row {
+  display: block; width: 100%; text-align: left; padding: 9px;
+  border: 1px solid var(--line); margin-bottom: 5px;
+  background: var(--bg); color: var(--fg); cursor: pointer;
+  font-size: calc(14px * var(--fz));
+}
+.chunk-row.on, .chunk-row:hover { border-color: var(--acc); background: var(--bg-1); }
+.chunk-row span, .chunk-row small { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.chunk-row small { margin-top: 5px; color: var(--fg-3); font-size: calc(12px * var(--fz)); }
+.chunk-form, .chunk-form label { display: flex; flex-direction: column; gap: 8px; min-width: 0; }
+.chunk-form label { color: var(--fg-2); font-size: calc(13px * var(--fz)); }
+.chunk-form .inp { width: 100%; font-size: calc(13px * var(--fz)); }
+.chunk-form .chunk-text { height: auto; min-height: 150px; padding: 8px; resize: vertical; line-height: 1.6; }
+.chunk-status { color: var(--fg-3); font-size: calc(11.5px * var(--fz)); }
+.chunk-form [aria-invalid='true'] { border-color: var(--neg); }
+.chunk-pop footer { justify-content: flex-start; flex-wrap: wrap; margin-top: 4px; }
+.chunk-pop .btn { font-size: calc(12px * var(--fz)); }
+@media (max-width: 520px) {
+  .chunk-layout { grid-template-columns: minmax(0, 1fr); }
+  .chunk-list { max-height: 130px; }
+}

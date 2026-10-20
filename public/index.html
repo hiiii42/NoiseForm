@@ -1,0 +1,422 @@
+<!doctype html>
+<html lang="zh-CN" data-theme="ink" data-tone="dark">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title data-i18n="page.title">NOISEFORM — 噪形 · AI 图像生成</title>
+  <meta name="description" content="An avant-garde NovelAI image generation client.">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' fill='%230b0a0e'/%3E%3Ccircle cx='12' cy='13' r='7' fill='%23c8ff2e'/%3E%3Ccircle cx='21' cy='20' r='6' fill='%23ff2e7e'/%3E%3C/svg%3E">
+  <link rel="preload" href="fonts/archivo-var.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="fonts/jetbrains-mono-var.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="css/base.css">
+  <link rel="stylesheet" href="css/app.css">
+<link rel="stylesheet" href="css/composition.css">
+<link rel="stylesheet" href="css/chunks.css">
+<link rel="stylesheet" href="css/workbench.css">
+<link rel="stylesheet" href="css/tour.css">
+<link rel="stylesheet" href="css/autocomplete.css">
+<link rel="stylesheet" href="css/tiled.css">
+<link rel="stylesheet" href="css/hover-actions.css">
+<link rel="stylesheet" href="css/editor-extras.css">
+<link rel="stylesheet" href="css/resize.css">
+<link rel="stylesheet" href="css/ctxmenu.css">
+<link rel="stylesheet" href="css/develop.css">
+<link rel="stylesheet" href="css/ideate.css">
+<link rel="stylesheet" href="css/charpos.css">
+  <script>
+    // Apply theme + text size before first paint to avoid a flash (mirrors applyAppearance in js/themes.js).
+    try {
+      const raw = JSON.parse(localStorage.getItem('nf.settings') || '{}');
+      const s = (raw && raw.v >= 1 && raw.data) || raw || {}; // versioned envelope {v,data} (persist.js) or legacy object
+      const de = document.documentElement;
+      if (s.theme) de.dataset.theme = s.theme;
+      de.dataset.tone = ['paper', 'mist', 'linen'].includes(s.theme) ? 'light' : 'dark';
+      const v1md = !(raw && raw.v >= 2) && (s.fontScale == null || s.fontScale === 'md'); // mirrors store.js settings migration v2
+      const fz = v1md ? 0.85 : { s70: 0.7, s75: 0.75, xs: 0.8, s85: 0.85, sm: 0.92, md: 1, s107: 1.07, lg: 1.1, s115: 1.15, xl: 1.2, s125: 1.25, s135: 1.35, xxl: 1.5 }[s.fontScale];
+      if (fz) de.style.setProperty('--fz', fz);
+    } catch {}
+  </script>
+  <script type="module" src="js/main.js"></script>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <!-- 3D jelly / goo: metaball threshold + specular light (refs: foam letters, MIND blobs) -->
+    <filter id="goo3d" x="-25%" y="-25%" width="150%" height="150%" color-interpolation-filters="sRGB">
+      <feGaussianBlur in="SourceGraphic" stdDeviation="16" result="blur"/>
+      <feColorMatrix in="blur" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 30 -13" result="goo"/>
+      <feGaussianBlur in="goo" stdDeviation="7" result="soft"/>
+      <feSpecularLighting in="soft" surfaceScale="7" specularConstant="1.15" specularExponent="26" lighting-color="#ffffff" result="spec">
+        <fePointLight x="-260" y="-320" z="520"/>
+      </feSpecularLighting>
+      <feComposite in="spec" in2="goo" operator="in" result="specIn"/>
+      <feDiffuseLighting in="soft" surfaceScale="5" diffuseConstant="1" lighting-color="#ffffff" result="diff">
+        <feDistantLight azimuth="225" elevation="48"/>
+      </feDiffuseLighting>
+      <feComposite in="goo" in2="diff" operator="arithmetic" k1="1.15" k2="0" k3="0" k4="0" result="shaded"/>
+      <feComposite in="shaded" in2="goo" operator="in" result="shadedIn"/>
+      <feComposite in="specIn" in2="shadedIn" operator="arithmetic" k1="0" k2="0.85" k3="1" k4="0" result="lit"/>
+      <feGaussianBlur in="goo" stdDeviation="18" result="sh"/>
+      <feOffset in="sh" dx="18" dy="26" result="sho"/>
+      <feColorMatrix in="sho" mode="matrix" values="0 0 0 0 0.05  0 0 0 0 0.02  0 0 0 0 0.12  0 0 0 0.45 0" result="shadow"/>
+      <feMerge><feMergeNode in="shadow"/><feMergeNode in="lit"/></feMerge>
+    </filter>
+  </defs>
+  <symbol id="i-download" viewBox="0 0 24 24"><path d="M12 3v12M6.5 9.5 12 15l5.5-5.5M4 20h16"/></symbol>
+  <symbol id="i-upload" viewBox="0 0 24 24"><path d="M12 15V3M6.5 8.5 12 3l5.5 5.5M4 14v6h16v-6"/></symbol>
+  <symbol id="i-copy" viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12"/><path d="M4 16V4h12"/></symbol>
+  <symbol id="i-upscale" viewBox="0 0 24 24"><path d="M4 14v6h6M20 10V4h-6M4 20l7-7M20 4l-7 7"/></symbol>
+  <symbol id="i-variations" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="7" height="7"/><rect x="13.5" y="3.5" width="7" height="7"/><rect x="3.5" y="13.5" width="7" height="7"/><rect x="13.5" y="13.5" width="7" height="7"/></symbol>
+  <symbol id="i-edit" viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16zM13 7l4 4"/></symbol>
+  <symbol id="i-inpaint" viewBox="0 0 24 24"><path d="M10.5 13.5 19 5l1.5 1.5L12 15"/><path d="M4 20.5c3.5 0 6-1 6-3.5a2 2 0 0 0-2-2c-1.6 0-2.5 1.2-2.5 2.6 0 1.4-.6 2.3-1.5 2.9z"/></symbol>
+  <symbol id="i-sliders" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16M9 4v4M15 10v4M7 16v4"/></symbol><symbol id="i-enhance" viewBox="0 0 24 24"><path d="M12 3v5M12 16v5M3 12h5M16 12h5M6.3 6.3l2.8 2.8M14.9 14.9l2.8 2.8M17.7 6.3l-2.8 2.8M9.1 14.9l-2.8 2.8"/></symbol>
+  <symbol id="i-wand" viewBox="0 0 24 24"><path d="M4 20 15 9l1.5 1.5L5.5 21.5zM15 3v4M13 5h4M20 8v4M18 10h4M9 4v2M8 5h2"/></symbol>
+  <symbol id="i-vibe" viewBox="0 0 24 24"><path d="M3 8.5c3-3 6 3 9 0s6 3 9 0M3 15.5c3-3 6 3 9 0s6 3 9 0"/></symbol>
+  <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="7.5"/><circle cx="12" cy="12" r="2.5"/><path d="M12 1.5v4M12 18.5v4M1.5 12h4M18.5 12h4"/></symbol>
+  <symbol id="i-seed" viewBox="0 0 24 24"><path d="M5 19C5 11 11 5 19 5c0 8-6 14-14 14zM5 19l7-7"/></symbol>
+  <symbol id="i-reuse" viewBox="0 0 24 24"><path d="M4.5 12a7.5 7.5 0 1 0 2.6-5.7M4 3.5V9h5.5"/></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3M6 7l1 14h10l1-14M10 11v6M14 11v6"/></symbol>
+  <symbol id="i-settings" viewBox="0 0 24 24"><path d="M3 6h11M18 6h3M3 12h3M10 12h11M3 18h13M20 18h1"/><rect x="14" y="4" width="4" height="4"/><rect x="6" y="10" width="4" height="4"/><rect x="16" y="16" width="4" height="4"/></symbol>
+  <symbol id="i-dice" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17"/><path d="M8.5 8.5h.01M15.5 8.5h.01M12 12h.01M8.5 15.5h.01M15.5 15.5h.01" stroke-width="3" stroke-linecap="round"/></symbol>
+  <symbol id="i-plus" viewBox="0 0 24 24"><path d="M12 4v16M4 12h16"/></symbol>
+  <symbol id="i-minus" viewBox="0 0 24 24"><path d="M4 12h16"/></symbol>
+  <symbol id="i-close" viewBox="0 0 24 24"><path d="M5 5l14 14M19 5 5 19"/></symbol>
+  <symbol id="i-swap" viewBox="0 0 24 24"><path d="M7 4v16M3 16l4 4 4-4M17 20V4M13 8l4-4 4 4"/></symbol>
+  <symbol id="i-lock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></symbol>
+  <symbol id="i-unlock" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="10"/><path d="M8 11V7a4 4 0 0 1 7.6-1.7"/></symbol>
+  <symbol id="i-up" viewBox="0 0 24 24"><path d="M6 15l6-6 6 6"/></symbol>
+  <symbol id="i-down" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6"/></symbol>
+  <symbol id="i-left" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></symbol>
+  <symbol id="i-right" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></symbol>
+  <symbol id="i-eye" viewBox="0 0 24 24"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></symbol>
+  <symbol id="i-eyeoff" viewBox="0 0 24 24"><path d="M2 12s4-7 10-7 10 7 10 7-4 7-10 7S2 12 2 12zM3 3l18 18"/></symbol>
+  <symbol id="i-grid" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18"/><path d="M9 3v18M15 3v18M3 9h18M3 15h18"/></symbol>
+  <symbol id="i-brush" viewBox="0 0 24 24"><path d="M10.5 13.5 19 5l1.5 1.5L12 15"/><path d="M4 20.5c3.5 0 6-1 6-3.5a2 2 0 0 0-2-2c-1.6 0-2.5 1.2-2.5 2.6 0 1.4-.6 2.3-1.5 2.9z"/></symbol>
+  <symbol id="i-eraser" viewBox="0 0 24 24"><path d="M9 20h11M4.5 15.5 14 6l5 5-8.5 8.5H8.5z"/></symbol>
+  <symbol id="i-theme" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 3.5a8.5 8.5 0 0 0 0 17z" fill="currentColor"/></symbol>
+  <symbol id="i-zip" viewBox="0 0 24 24"><path d="M5 3h10l4 4v14H5zM11 3v2h2v2h-2v2h2v2h-2v3h2"/></symbol>
+  <symbol id="i-expand" viewBox="0 0 24 24"><path d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="M4 12.5 9.5 18 20 6"/></symbol>
+  <symbol id="i-undo" viewBox="0 0 24 24"><path d="M9 14 4 9l5-5M4 9h10a6 6 0 0 1 0 12h-3"/></symbol>
+  <symbol id="i-invert" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17"/><path d="M3.5 20.5l17-17V20.5z" fill="currentColor"/></symbol>
+  <symbol id="i-text" viewBox="0 0 24 24"><path d="M5 6V4h14v2M12 4v16M9 20h6"/></symbol>
+  <symbol id="i-star" viewBox="0 0 24 24"><path d="M12 3.5l2.6 5.6 6.1.7-4.5 4.2 1.2 6L12 17l-5.4 3 1.2-6-4.5-4.2 6.1-.7z"/></symbol>
+  <symbol id="i-reject" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M6 6l12 12"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="10.5" cy="10.5" r="6"/><path d="M15 15l5.5 5.5"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7v5l3.5 2"/></symbol>
+  <symbol id="i-snippet" viewBox="0 0 24 24"><path d="M6 3.5h12v17l-6-4-6 4z"/></symbol>
+  <symbol id="i-bell" viewBox="0 0 24 24"><path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15zM10 20.5h4"/></symbol>
+  <symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 20h16M7 16v-5M12 16V6M17 16v-8"/></symbol>
+  <symbol id="i-db" viewBox="0 0 24 24"><ellipse cx="12" cy="6" rx="7" ry="2.5"/><path d="M5 6v12c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5V6M5 12c0 1.4 3.1 2.5 7 2.5s7-1.1 7-2.5"/></symbol>
+  <symbol id="i-queue" viewBox="0 0 24 24"><path d="M4 6h13M4 12h13M4 18h8M16 15.5l4 2.5-4 2.5z"/></symbol>
+  <symbol id="i-link" viewBox="0 0 24 24"><path d="M10.5 13.5a4 4 0 0 0 5.6 0l3-3a4 4 0 0 0-5.6-5.6l-1.1 1.1"/><path d="M13.5 10.5a4 4 0 0 0-5.6 0l-3 3a4 4 0 0 0 5.6 5.6l1.1-1.1"/></symbol>
+  <symbol id="i-sparkle" viewBox="0 0 24 24"><path d="M12 3l1.8 5.4L19 10l-5.2 1.6L12 17l-1.8-5.4L5 10l5.2-1.6z"/><path d="M18.5 15.5l.7 2 2 .7-2 .7-.7 2-.7-2-2-.7 2-.7z"/></symbol>
+  <symbol id="i-more" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.4" fill="currentColor"/><circle cx="12" cy="12" r="1.4" fill="currentColor"/><circle cx="19" cy="12" r="1.4" fill="currentColor"/></symbol>
+  <symbol id="i-xy" viewBox="0 0 24 24"><path d="M3.5 3.5v17h17"/><rect x="7" y="4" width="5" height="5"/><rect x="14" y="4" width="5" height="5"/><rect x="7" y="11" width="5" height="5"/><rect x="14" y="11" width="5" height="5"/></symbol>
+</svg>
+
+<div class="grain" aria-hidden="true"></div>
+
+<!-- ============================== TOP BAR ============================== -->
+<header class="top">
+  <a class="brand" href="./" aria-label="NOISEFORM">
+    <span class="brand-a">NOISE</span><span class="brand-b">FORM</span>
+    <sup class="brand-v">v1.8.7</sup>
+  </a>
+  <div class="model-pick">
+    <button class="model-btn" id="modelBtn" aria-haspopup="listbox">
+      <span class="t-label" data-i18n="top.model">模型</span>
+      <b id="modelName">NAI DIFFUSION V4.5 FULL</b>
+      <svg class="ic"><use href="#i-down"/></svg>
+    </button>
+    <div class="model-menu" id="modelMenu" role="listbox" hidden></div>
+  </div>
+  <div class="slug" id="slug" aria-live="polite"></div>
+  <div class="top-r">
+    <span class="conn" id="conn" data-mode="demo"><i></i><b>DEMO</b></span>
+    <span class="quota" id="quota" hidden><span class="q-l mono">V5</span><span class="q-bar"><i></i></span><b class="mono"></b><small class="mono"></small></span>
+    <span class="anlas" id="anlas" title="Anlas"><span class="anlas-g">◈</span><b>—</b></span>
+    <button class="btn ghost" id="btnImport"><svg class="ic"><use href="#i-upload"/></svg><span data-i18n="top.import">导入图像</span></button>
+    <button class="btn ghost sq" id="btnLang" data-i18n-title="top.language" title="语言">中</button>
+    <button class="btn ghost sq" id="btnTheme" data-i18n-title="top.look" title="外观：配色 · 字号"><svg class="ic"><use href="#i-theme"/></svg></button>
+    <button class="btn ghost sq" id="btnSettings" data-i18n-title="top.settings" title="设置"><svg class="ic"><use href="#i-settings"/></svg></button>
+  </div>
+</header>
+
+<main class="app">
+  <!-- ============================== CONTROL PANEL ============================== -->
+  <aside class="panel" id="panel">
+    <div class="panel-scroll" id="panelScroll">
+      <div class="lock-strip" id="lockStrip" role="status" aria-live="polite" hidden></div>
+
+      <!-- 01 PROMPT -->
+      <section class="sec" style="--sec: var(--c-prompt)" data-sec="prompt">
+        <header class="sec-h">
+          <span class="sec-n">01</span>
+          <h2 class="sec-t" data-i18n="head.prompt">提示词</h2>
+          <span class="sec-s" data-i18n="sec.prompt">基础提示词</span>
+          <span class="sec-x">
+            <button class="btn sm ghost ide-btn" id="btnIdeate" data-i18n-title="ide.tip" title="AI 构思：一句话生成 tag，或检查当前提示词"><svg class="ic"><use href="#i-sparkle"/></svg><span>AI</span></button>
+            <button class="btn sm ghost ide-btn" id="btnXY" data-i18n-title="xy.tip" title="X/Y 对比网格"><svg class="ic"><use href="#i-xy"/></svg><span>X/Y</span></button>
+            <button class="btn sm sq ghost" id="btnRandomPrompt" data-i18n-title="act.randomPrompt" title="随机提示词"><svg class="ic"><use href="#i-dice"/></svg></button>
+            <button class="sec-tog" data-i18n-aria="sec.toggle" aria-label="展开 / 收起"></button>
+          </span>
+        </header>
+        <div class="sec-b">
+          <div class="editor" id="promptEditor" data-field="prompt"></div>
+          <div class="row between">
+            <span class="row"><label class="tgl"><input type="checkbox" id="qualityToggle"><span class="sw"></span><span data-i18n="f.quality">质量标签</span></label><select class="sel sm" id="qualityPreset" data-v5 data-i18n-aria="f.qualityPreset" aria-label="质量预设"><option value="0" data-i18n="f.standard">标准</option><option value="1" data-i18n="f.light">轻量</option></select></span>
+            <span class="row pr-tools"><button class="btn sm ghost" id="btnSnippets" data-i18n-title="snip.tip" title="提示词块"><svg class="ic"><use href="#i-snippet"/></svg><span data-i18n="snip.btn">提示词块</span></button><button class="btn sm ghost" id="btnTimeline" data-i18n-title="tl.tip" title="提示词历史"><svg class="ic"><use href="#i-clock"/></svg><span data-i18n="tl.btn">历史</span></button><span class="tok mono" id="promptTok">0 / 512</span></span>
+          </div>
+        </div>
+      </section>
+
+      <!-- 02 UNDESIRED -->
+      <section class="sec" style="--sec: var(--c-neg)" data-sec="uc">
+        <header class="sec-h">
+          <span class="sec-n">02</span>
+          <h2 class="sec-t" data-i18n="head.uc">负面内容</h2>
+          <span class="sec-s" data-i18n="sec.uc">负面内容</span>
+          <span class="sec-x"><button class="sec-tog" data-i18n-aria="sec.toggle" aria-label="展开 / 收起"></button></span>
+        </header>
+        <div class="sec-b">
+          <div class="row">
+            <span class="t-label" data-i18n="f.ucPreset">预设</span>
+            <select class="sel grow" id="ucPreset" data-i18n-title="hint.ucPreset" title="预设内容会在生成时自动追加到负面提示词"></select>
+          </div>
+          <div class="editor small" id="ucEditor" data-field="uc"></div>
+          <div class="row between">
+            <span></span>
+            <span class="tok mono" id="ucTok">0 / 512</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- 03 CHARACTERS -->
+      <section class="sec" style="--sec: var(--c-char)" data-sec="chars" id="secChars">
+        <header class="sec-h">
+          <span class="sec-n">03</span>
+          <h2 class="sec-t" data-i18n="head.chars">角色</h2>
+          <span class="sec-s" data-i18n="sec.chars">角色提示词</span>
+          <span class="sec-x"><span class="badge mono" id="charCount">0/6</span><button class="sec-tog" data-i18n-aria="sec.toggle" aria-label="展开 / 收起"></button></span>
+        </header>
+        <div class="sec-b">
+          <div class="chars" id="charList"></div>
+          <div class="row between">
+            <button class="btn" id="btnAddChar"><svg class="ic"><use href="#i-plus"/></svg><span data-i18n="act.addChar">添加角色</span></button>
+            <label class="tgl" data-i18n-title="f.aiChoice" title="AI 决定位置"><input type="checkbox" id="aiChoice"><span class="sw"></span><span data-i18n="f.aiChoice">AI 决定位置</span></label>
+          </div>
+          <p class="hint" data-i18n="hint.v4only" id="charV3Hint" hidden>角色提示词仅支持 V4 / V4.5 模型。</p>
+        </div>
+      </section>
+
+      <!-- 04 IMAGE -->
+      <section class="sec" style="--sec: var(--c-image)" data-sec="image">
+        <header class="sec-h">
+          <span class="sec-n">04</span>
+          <h2 class="sec-t" data-i18n="head.canvas">画布</h2>
+          <span class="sec-s" data-i18n="sec.image">图像尺寸</span>
+          <span class="sec-x"><button class="sec-tog" data-i18n-aria="sec.toggle" aria-label="展开 / 收起"></button></span>
+        </header>
+        <div class="sec-b">
+          <div class="size-grid">
+            <div class="size-preview" id="sizePreview"><i></i><span class="mono" id="sizeMP">1.01 MP</span></div>
+            <div class="size-ctl">
+              <select class="sel" id="sizePreset"></select>
+              <div class="row wh">
+                <input class="inp" type="number" id="width" step="64" min="64" max="2048" data-i18n-aria="f.width" aria-label="宽度">
+                <button class="btn sq" id="btnSwap" data-i18n-title="f.swap" title="交换宽高"><svg class="ic"><use href="#i-swap"/></svg></button>
+                <input class="inp" type="number" id="height" step="64" min="64" max="2048" data-i18n-aria="f.height" aria-label="高度">
+              </div>
+            </div>
+          </div>
+          <label class="tgl" data-v5><input type="checkbox" id="transparent"><span class="sw"></span><span class="cn" data-i18n="f.transparent">透明背景</span></label>
+          <div class="row between">
+            <span class="t-label" data-i18n="f.nSamples">生成数量</span>
+            <div class="seg" id="nSamples"><button data-v="1">1</button><button data-v="2">2</button><button data-v="3">3</button><button data-v="4">4</button></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- 05 AI SETTINGS -->
+      <section class="sec" style="--sec: var(--c-ai)" data-sec="ai">
+        <header class="sec-h">
+          <span class="sec-n">05</span>
+          <h2 class="sec-t" data-i18n="head.sampling">采样</h2>
+          <span class="sec-s" data-i18n="sec.ai">AI 设置</span>
+          <span class="sec-x"><button class="sec-tog" data-i18n-aria="sec.toggle" aria-label="展开 / 收起"></button></span>
+        </header>
+        <div class="sec-b">
+          <div class="fld" data-slider="steps" data-min="1" data-max="50" data-step="1"><label data-i18n="f.steps">步数 STEPS</label></div>
+          <div class="fld" data-slider="scale" data-min="0" data-max="10" data-step="0.1"><label data-i18n="f.scale">提示词引导 GUIDANCE</label></div>
+          <div class="seed-row">
+            <span class="t-label" data-i18n="f.seed">种子</span>
+            <input class="inp mono grow" id="seed" type="text" inputmode="numeric" data-i18n-ph="f.random" placeholder="随机">
+            <span class="seed-from mono" id="seedFrom" hidden></span>
+            <button class="btn sq" id="btnSeedRandom" data-i18n-title="act.clearSeed" title="随机"><svg class="ic"><use href="#i-dice"/></svg></button>
+            <button class="btn sq" id="btnSeedLock" data-i18n-title="act.lockSeed" title="锁定种子"><svg class="ic"><use href="#i-unlock"/></svg></button>
+          </div>
+          <div class="row">
+            <span class="t-label" data-i18n="f.sampler">采样器</span>
+            <select class="sel grow" id="sampler"></select>
+          </div>
+          <details class="adv">
+            <summary class="t-label"><span data-i18n="f.advanced">高级设置</span></summary>
+            <div class="fld" data-slider="cfgRescale" data-min="0" data-max="1" data-step="0.02"><label data-i18n="f.rescale">引导重缩放 RESCALE</label></div>
+            <div class="row">
+              <span class="t-label" data-i18n="f.noise">噪声调度</span>
+              <select class="sel grow" id="noiseSchedule"></select>
+            </div>
+            <div class="row wrap gap">
+              <label class="tgl" data-v4><input type="checkbox" id="variety"><span class="sw"></span><span>VARIETY+</span></label>
+              <label class="tgl" data-v3><input type="checkbox" id="smea"><span class="sw"></span><span>SMEA</span></label>
+              <label class="tgl" data-v3><input type="checkbox" id="dyn"><span class="sw"></span><span>DYN</span></label>
+              <label class="tgl" data-v3><input type="checkbox" id="decrisp"><span class="sw"></span><span>DECRISP</span></label>
+            </div>
+          </details>
+        </div>
+      </section>
+
+      <!-- 06 BASE IMAGE -->
+      <section class="sec" style="--sec: var(--c-base)" data-sec="base" id="secBase">
+        <header class="sec-h">
+          <span class="sec-n">06</span>
+          <h2 class="sec-t" data-i18n="head.base">底图</h2>
+          <span class="sec-s" data-i18n="sec.base">图生图 / 局部重绘</span>
+          <span class="sec-x"><button class="sec-tog" data-i18n-aria="sec.toggle" aria-label="展开 / 收起"></button></span>
+        </header>
+        <div class="sec-b" id="baseBody"></div>
+      </section>
+
+      <!-- 07 VIBE TRANSFER -->
+      <section class="sec" style="--sec: var(--c-vibe)" data-sec="vibe" id="secVibe">
+        <header class="sec-h">
+          <span class="sec-n">07</span>
+          <h2 class="sec-t" data-i18n="head.vibe">氛围</h2>
+          <span class="sec-s" data-i18n="sec.vibe">氛围迁移</span>
+          <span class="sec-x"><span class="badge mono" id="vibeCount">0</span><button class="sec-tog" data-i18n-aria="sec.toggle" aria-label="展开 / 收起"></button></span>
+        </header>
+        <div class="sec-b">
+          <div class="vibes" id="vibeList"></div>
+          <div class="row between">
+            <button class="btn" id="btnAddVibe"><svg class="ic"><use href="#i-plus"/></svg><span data-i18n="act.addVibe">添加参考图</span></button>
+            <label class="tgl"><input type="checkbox" id="normalizeVibes"><span class="sw"></span><span data-i18n="f.normalize">强度归一化</span></label>
+          </div>
+          <p class="hint" id="vibeHint"></p>
+        </div>
+      </section>
+
+      <!-- 08 PRECISE REFERENCE -->
+      <section class="sec" style="--sec: var(--c-ref)" data-sec="ref" id="secRef">
+        <header class="sec-h">
+          <span class="sec-n">08</span>
+          <h2 class="sec-t" data-i18n="head.ref">精确参考</h2>
+          <span class="sec-s" data-i18n="sec.ref">精确参考</span>
+          <span class="sec-x"><button class="sec-tog" data-i18n-aria="sec.toggle" aria-label="展开 / 收起"></button></span>
+        </header>
+        <div class="sec-b" id="refBody"></div>
+      </section>
+
+      <div class="panel-foot mono">
+        <span data-i18n="brand.local">NOISEFORM · 噪形</span><span data-i18n="brand.motto">从噪声中，显影出形状。</span>
+      </div>
+    </div>
+
+    <div class="gen-dock">
+      <button class="gen" id="btnGenerate" data-i18n-title="gen.tip" title="Ctrl+Enter · 长按 = 自动生成">
+        <span class="gen-fill" aria-hidden="true"></span>
+        <span class="gen-l"><span class="gen-t" data-i18n="act.generate">GENERATE</span><span class="gen-n mono" id="genCount">1 IMAGE</span></span>
+        <span class="gen-r mono"><span class="anlas-g">◈</span><b id="genCost">20</b></span>
+      </button>
+      <div class="auto-row">
+        <button class="auto-btn" id="btnAuto" title="Ctrl + Shift + Enter"><svg class="ic"><use href="#i-reuse"/></svg><b data-i18n="gen.auto">自动生成</b></button>
+        <div class="seg" id="autoMode"><button data-v="loop" data-i18n="auto.loop">连续</button><button data-v="change" data-i18n="auto.change">改动后</button></div>
+        <select class="sel sm" id="autoCount" data-i18n-aria="f.count" aria-label="数量" data-i18n-title="auto.countTip" title="新批量的张数"><option value="0">∞</option><option value="5">×5</option><option value="10">×10</option><option value="20">×20</option><option value="50">×50</option></select>
+        <button class="btn sm ghost seed-prev" id="btnSeedPrev" aria-pressed="false" data-i18n-title="q.seedPrevTip" title="新批量沿用上一批的种子"><svg class="ic"><use href="#i-link"/></svg><span data-i18n="q.seedPrev">同种子</span></button>
+        <button class="btn sm ghost q-btn" id="btnQueue" data-i18n-title="q.tip" title="队列 / 队列历史"><svg class="ic"><use href="#i-queue"/></svg><span data-i18n="q.btn">队列</span><b class="q-n mono"></b></button>
+        <label class="tgl" data-i18n-title="auto.freeTip" title="只在 Opus 免费条件下生成（≤1MP、≤28 步、1 张）"><input type="checkbox" id="autoFree"><span class="sw"></span><span class="cn" data-i18n="auto.free">仅免费</span></label>
+      </div>
+      <span id="notifyHome" hidden><button class="btn sm sq ghost bell-btn" id="btnNotify" data-i18n-aria="notify.label" aria-label="系统通知"><svg class="ic"><use href="#i-bell"/></svg></button></span>
+    </div>
+  </aside>
+
+  <!-- ============================== STAGE ============================== -->
+  <!-- post-processing mode: fills the panel column and the stage while body.post-mode is set -->
+  <aside class="panel post-panel" id="postPanel" hidden></aside>
+  <section class="stage" id="stage">
+    <canvas class="contours" id="contours" aria-hidden="true"></canvas>
+
+    <div class="poster" id="poster">
+      <div class="poster-type" aria-hidden="true">
+        <span>NOISE</span><span>NOISE</span><span>FORM</span><span>FORM</span>
+      </div>
+      <svg class="poster-blobs" viewBox="0 0 900 900" aria-hidden="true">
+        <defs>
+          <linearGradient id="blobGrad" x1="0" y1="0" x2="1" y2="1">
+            <stop offset="0" class="bg-a"/>
+            <stop offset="0.55" class="bg-b"/>
+            <stop offset="1" class="bg-c"/>
+          </linearGradient>
+        </defs>
+        <g filter="url(#goo3d)" fill="url(#blobGrad)">
+          <circle class="b b1" cx="300" cy="290" r="92"/>
+          <circle class="b b2" cx="420" cy="350" r="70"/>
+          <circle class="b b3" cx="560" cy="300" r="64"/>
+          <circle class="b b4" cx="620" cy="520" r="100"/>
+          <circle class="b b5" cx="360" cy="600" r="78"/>
+          <circle class="b b6" cx="480" cy="560" r="54"/>
+          <circle class="b b7" cx="250" cy="470" r="48"/>
+        </g>
+      </svg>
+      <div class="poster-side l mono" aria-hidden="true">FROM&nbsp;NOISE&nbsp;—&nbsp;FORM</div>
+      <div class="poster-side r mono" aria-hidden="true">FROM&nbsp;NOISE&nbsp;—&nbsp;FORM</div>
+      <div class="poster-cap">
+        <p class="poster-hl" data-i18n="poster.hl">从噪声中，显影出形状。</p>
+        <p class="mono poster-sub"><span data-i18n="poster.sub">写下提示词，按</span> <span class="kbd">CTRL</span> + <span class="kbd">ENTER</span></p>
+      </div>
+    </div>
+
+    <div class="view" id="view" hidden></div>
+    <div class="developing" id="developing" hidden></div>
+
+    <div class="dropzone" id="dropzone" hidden>
+      <div class="dz-in">
+        <span class="dz-t" data-i18n="drop.title">拖入图像</span>
+        <span class="mono" data-i18n="drop.hint">松开以导入图像 / 读取元数据</span>
+      </div>
+    </div>
+
+    <nav class="tools" id="tools" hidden></nav>
+    <div class="post-view" id="postView" hidden></div>
+  </section>
+
+  <!-- ============================== ARCHIVE ============================== -->
+  <aside class="archive" id="archive">
+    <div class="arch-resize" id="archResize" aria-hidden="true"></div>
+    <div class="arch-h">
+      <span class="arch-t" data-i18n="head.archive">档案</span>
+      <span class="arch-c mono" id="archCount">000</span>
+      <button class="btn sm sq ghost arch-wide-btn" id="btnArchWide" data-i18n-title="arch.expand" title="展开档案（网格）"><svg class="ic"><use href="#i-expand"/></svg></button>
+    </div>
+    <div class="arch-tools">
+      <label class="arch-search"><svg class="ic"><use href="#i-search"/></svg><input id="archSearch" type="search" spellcheck="false" autocomplete="off" data-i18n-ph="arch.search" placeholder="搜索 tag / 种子…"><button class="arch-q-help" id="archHelp" type="button" tabindex="-1">?</button></label>
+      <div class="arch-filters">
+        <select class="sel sm" id="archFilter" data-i18n-aria="arch.filter" aria-label="筛选"></select>
+        <select class="sel sm" id="archDate" data-i18n-aria="arch.date" aria-label="日期"></select>
+      </div>
+    </div>
+    <div class="arch-selbar" id="archSel" hidden></div>
+    <div class="arch-list" id="archList"></div>
+    <div class="arch-f">
+      <button class="btn sm sq ghost" id="btnZip" data-i18n-title="act.zip" title="打包下载"><svg class="ic"><use href="#i-zip"/></svg></button>
+      <button class="btn sm ghost arch-store" id="btnStorage" data-i18n-title="arch.storage" title="存储占用"><svg class="ic"><use href="#i-db"/></svg><b class="mono">—</b></button>
+      <input type="range" class="arch-size" id="archSize" min="72" max="260" step="4" data-i18n-title="arch.size" title="缩略图大小">
+      <button class="btn sm sq ghost danger" id="btnClearHistory" data-i18n-title="act.clearHistory" title="清空"><svg class="ic"><use href="#i-trash"/></svg></button>
+    </div>
+  </aside>
+</main>
+
+<div class="modal-root" id="modalRoot"></div>
+<div class="toasts" id="toasts" aria-live="polite"></div>
+</body>
+</html>

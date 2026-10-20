@@ -1,0 +1,36 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  check-and-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: browser-actions/setup-chrome@v1
+        id: chrome
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm run check
+      - run: npm run test:unit
+      - run: npm run test:browser
+        env:
+          CHROME: ${{ steps.chrome.outputs.chrome-path }}
+          CI_REQUIRE_BROWSER: '1'
+          NF_TEST_ARTIFACTS: ${{ runner.temp }}/noiseform-test-artifacts
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: browser-test-artifacts
+          path: ${{ runner.temp }}/noiseform-test-artifacts
+          if-no-files-found: ignore
