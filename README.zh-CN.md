@@ -29,13 +29,13 @@
 
 ## ▶ 00 · 看一眼
 
-<!--
+[<!--
   视频位 .mp4（≤100 MB）。
--->
+-->](https://www.youtube.com/watch?v=7nn1Mbfcnrs)
 <div align="center">
 
 **🎬 介绍视频 · 即将上线**
-
+docs/media/NOISEFORM_promo_2K.mp4
 </div>
 
 ---
