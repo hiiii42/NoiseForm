@@ -9,7 +9,9 @@ import { decodeStreamFrames } from './msgpack.js';
 import { t, getLang } from './i18n.js';
 import { generationCost as domainGenerationCost } from './domain/cost.js';
 
-const DIRECT = { image: 'https://image.novelai.net', api: 'https://api.novelai.net' };
+// Image generation only needs image.novelai.net. The legacy api.novelai.net endpoint (its last image use
+// was an /ai/upscale fallback) is being retired by NovelAI on 2026-11-21 and is no longer called (1.8.8).
+const DIRECT = { image: 'https://image.novelai.net' };
 // Watchdog (1.8.5). A request must end even when the network goes quiet: a black-holed route, a dead
 // pooled socket behind a proxy, or a response body that stops. Without these a generation sat at the
 // capped estimate (≈93%) forever. Mutating requests that time out are UNKNOWN results (they may have run
@@ -18,7 +20,7 @@ export const TIMEOUTS = { probe: 8000, headers: 240000, idle: 120000 };
 const stalled = (ms) => new Error((getLang() === 'zh' ? `服务器 ${Math.round(ms / 1000)} 秒没有响应` : `No response from the server for ${Math.round(ms / 1000)}s`));
 const timeoutSignal = (ms) => { const c = new AbortController(); const id = setTimeout(() => c.abort(new DOMException('timeout', 'TimeoutError')), ms); return { signal: c.signal, clear: () => clearTimeout(id) }; };
 const anySignal = (...list) => AbortSignal.any(list.filter(Boolean));
-const PROXY = { image: '/proxy/image', api: '/proxy/api' };
+const PROXY = { image: '/proxy/image' };
 
 export class ApiError extends Error {
   constructor(status, message) {
@@ -501,20 +503,14 @@ export async function augment(reqType, imageB64, width, height, { prompt = '', d
   return (await readImages(res))[0];
 }
 
-export async function upscale(imageB64, width, height) {
-  try {
-    const res = await call('image', '/ai/upscale', {
-      body: { image: imageB64, model: 'nai-diffusion-5-curated', declared_blur_sigma: 0 },
-    });
-    return (await readImages(res))[0];
-  } catch (err) {
-    if (err.unknown || ![404, 405].includes(err.status)) throw err;
-    const res = await call('api', '/ai/upscale', { body: { image: imageB64, width, height, scale: 4 } });
-    return (await readImages(res))[0];
-  }
+export async function upscale(imageB64) {
+  const res = await call('image', '/ai/upscale', {
+    body: { image: imageB64, model: 'nai-diffusion-5-curated', declared_blur_sigma: 0 },
+  });
+  return (await readImages(res))[0];
 }
 
-// api.novelai.net/user/subscription now answers 400 "update to the image URL".
+// Subscription lives on image.novelai.net (the legacy api.novelai.net host answered 400 "update to the image URL").
 export async function subscription() {
   const res = await call('image', '/user/subscription', { method: 'GET' });
   const j = await res.json();

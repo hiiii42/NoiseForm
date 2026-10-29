@@ -142,7 +142,7 @@ async function upscaleRec(rec) {
   const tick = setInterval(() => publish('tool:progress', (p = Math.min(0.93, p + 0.02))), 120);
   try {
     let blob;
-    if (live) blob = await nai.upscale(await blobToBase64(rec.blob), rec.width, rec.height);
+    if (live) blob = await nai.upscale(await blobToBase64(rec.blob));
     else blob = await demoUpscale(ports.urlFor(rec), 4);
     const result = await receiveOutputs([{ blob, seed: rec.seed, width: rec.width * 4, height: rec.height * 4, model: rec.model, kind: 'upscale', demo: !live, params: rec.params }], {
       prepare: async (items) => {

@@ -1,6 +1,6 @@
 # NOISEFORM 架构说明（开发者文档）
 
-> 对应版本 1.8.7（2026-10-21）。面向要改代码的人：模块边界、数据流、存储、服务端和三条复杂管线（队列 / X/Y 网格 / AI 构思）。
+> 对应版本 1.8.8（2026-10-29）。面向要改代码的人：模块边界、数据流、存储、服务端和三条复杂管线（队列 / X/Y 网格 / AI 构思）。
 > 用户视角的功能说明见 [USER_GUIDE.md](USER_GUIDE.md)，变更记录见 [../CHANGELOG.md](../CHANGELOG.md)。
 
 ## 1. 一句话概览
@@ -17,7 +17,7 @@ npm test                  # 静态检查 + 单元测试 + 浏览器测试（需�
 ## 2. 目录与模块
 
 ```
-server.js                静态文件（gzip 缓存）+ /proxy/image|api → NovelAI + /proxy/llm → OpenAI 兼容接口
+server.js                静态文件（gzip 缓存）+ /proxy/image → NovelAI + /proxy/llm → OpenAI 兼容接口
 tools/build-tags.mjs     合并三个社区词库生成 public/data/tags.tsv（11 万 tag：分类 / 热度 / 中文 / 别名；三个仓库根许可为 MIT，数据来源细节与未确认项见 THIRD_PARTY.md）
 tools/check.mjs          语法检查、public/js 静态 import 图循环检测、四处版本号一致、长令牌扫描
 test/unit/*.test.mjs     node:test 单元测试（服务端、导入 schema、分块、保存文件名、db、请求线路 …）
@@ -167,7 +167,8 @@ kind: gen | img2img | inpaint | variation | upscale（tiled 时带 tiled + sourc
 
 ## 4. 服务端 server.js
 - 静态：`public/` 下文件，文本类 >1 KB 做 gzip 并按 mtime 缓存。
-- `/proxy/image/*` → `https://image.novelai.net`，`/proxy/api/*` → `https://api.novelai.net`：透传 authorization 等头；无头时可用环境变量 `NAI_TOKEN`。请求 / 响应都用 `stream.pipeline` 透传（流式逐段不缓冲）：上游响应体中断时销毁下游，浏览器断开时销毁上游（LLM 代理同）。
+- `/proxy/image/*` → `https://image.novelai.net`：透传 authorization 等头；无头时可用环境变量 `NAI_TOKEN`。请求 / 响应都用 `stream.pipeline` 透传（流式逐段不缓冲）：上游响应体中断时销毁下游，浏览器断开时销毁上游（LLM 代理同）。
+- `/proxy/api/*` 已于 1.8.8 移除（NovelAI 2026-11-21 下线旧端点 `api.novelai.net`）：直接返回 410 + `x-nf-outcome: not-sent`，不连接任何上游。本项目只用图像接口，不涉及迁往 `text.novelai.net` 的文本 / TTS 模型。
 - **结果分类**（1.8.3）：有副作用的请求失败且尚未收到响应头时，代理返回 502 + `x-nf-outcome` / JSON `outcome`：`not-sent` = 证明连接都没建立；其余（部分上传、上传完成后断线、超时、复用连接失败）一律 `unknown`。`nai.js` 把 `unknown` 转成 `UnknownResultError`，与浏览器直连的网络错误同语义——绝不自动重放。correlation id 不是幂等键。
 - 上游：默认**直连**。需要时走 HTTP CONNECT 隧道，优先级：浏览器「设置 → 上游代理」（每个请求带 `x-nf-upstream: http://host:port`，只接受不带凭据 / 路径的 http 地址，其他值 400 not-sent）> `NF_UPSTREAM_PROXY` > `HTTPS_PROXY` > 直连。隧道 agent 按代理地址缓存（最多 8 个）。设置关闭时不发这个头，由服务端默认决定。
 - `/proxy/llm/chat/completions|models`：仅接受本机连接；浏览器用 `x-llm-base` 指定接口根地址（https，或 http://localhost 如 Ollama），`x-llm-route: proxy|direct` 选线路。只转发这两个路径。

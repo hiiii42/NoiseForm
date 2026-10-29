@@ -211,16 +211,27 @@ test('server trust, URL error recovery and static containment', { timeout: 30000
     }
   });
 
-  await t.test('F02 allowed local image/api/LLM requests still reach only the local double', async () => {
-    for (const target of ['image/ai/generate-image', 'api/user/subscription']) {
+  await t.test('F02 allowed local image/LLM requests still reach only the local double', async () => {
+    for (const target of ['image/ai/generate-image', 'image/user/subscription']) {
       assert.equal((await request(port, '/proxy/' + target + '?fixture=1', { origin })).status, 200);
       assert.equal(forwarded.at(-1).token, 'Bearer ' + dummyToken);
       assert.ok(forwarded.at(-1).path.endsWith('?fixture=1'));
     }
-    await request(port, '/proxy/api/user/subscription', { authorization: 'Bearer browser-placeholder' });
+    await request(port, '/proxy/image/user/subscription', { authorization: 'Bearer browser-placeholder' });
     assert.equal(forwarded.at(-1).token, 'Bearer browser-placeholder');
     assert.equal((await request(port, '/proxy/llm/models', { 'x-llm-base': upstream, origin })).status, 200);
     assert.equal(forwarded.at(-1).token, undefined, 'NAI_TOKEN is never injected into LLM calls');
+  });
+
+  await t.test('legacy /proxy/api route is retired: 410 not-sent, nothing forwarded', async () => {
+    const before = forwarded.length;
+    for (const target of ['/proxy/api/user/subscription', '/proxy/api/ai/upscale', '/proxy/api']) {
+      const res = await request(port, target, { origin });
+      assert.equal(res.status, 410, target);
+      assert.equal(res.headers['x-nf-outcome'], 'not-sent');
+      assert.equal(JSON.parse(res.body).outcome, 'not-sent');
+    }
+    assert.equal(forwarded.length, before);
   });
 
   await t.test('F05 malformed path/query encodings return 400 and health remains available', async () => {

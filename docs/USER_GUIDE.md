@@ -1,6 +1,6 @@
 # NOISEFORM 使用指南（用户文档）
 
-> 对应版本 1.8.7。按"你想做什么"组织，每节给一个例子。开发者请看 [ARCHITECTURE.md](ARCHITECTURE.md)。
+> 对应版本 1.8.8。按"你想做什么"组织，每节给一个例子。开发者请看 [ARCHITECTURE.md](ARCHITECTURE.md)。
 
 ## 0. 启动与两种模式
 

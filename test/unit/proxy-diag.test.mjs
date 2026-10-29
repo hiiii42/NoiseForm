@@ -55,7 +55,7 @@ test('proxy JSON lines and GET /proxy/diag cover outcomes, privacy, bounds and a
     }
     assert.fail(`missing ${expected}`);
   }
-  for (const target of ['image', 'api', 'llm']) {
+  for (const target of ['image', 'llm']) {
     for (const outcome of ['ok', 'http-error', 'unknown', 'truncated', 'client-closed']) {
       const path = target === 'llm' ? '/proxy/llm/chat/completions' : `/proxy/${target}/${outcome}?token=pst-SECRET`;
       const headers = { authorization: 'Bearer pst-SECRET', 'x-llm-base': `http://alice:password@127.0.0.1:${upstreamPort}/${outcome}?key=sk-SECRET` };
@@ -79,10 +79,10 @@ test('proxy JSON lines and GET /proxy/diag cover outcomes, privacy, bounds and a
   assert.equal((await request(port, '/proxy/diag', { headers: { origin: 'http://evil.invalid' } })).status, 403);
   assert.equal((await request(port, '/proxy/diag', { method: 'POST' })).status, 405);
   // Force ring rollover without sending any external traffic.
-  for (let i = 0; i < 205; i++) await request(port, '/proxy/api/ok');
+  for (let i = 0; i < 205; i++) await request(port, '/proxy/image/ok');
   assert.equal((await read()).length, 200);
   await close(upstream);
-  await request(port, '/proxy/api/not-sent', { method: 'POST', body: 'prompt SECRET' });
+  await request(port, '/proxy/image/not-sent', { method: 'POST', body: 'prompt SECRET' });
   assert.equal((await latest('not-sent')).status, null, 'no upstream response headers exist for a connection refusal');
   await delay(50); // stdout delivery is asynchronous to the child response
   const lines = output.trim().split('\n').map((s) => JSON.parse(s));

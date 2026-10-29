@@ -25,16 +25,17 @@ const PORT = Number(process.env.PORT) || 8787;
 const HOST = process.env.NF_HOST || '127.0.0.1';
 const ROOT = path.join(__dirname, 'public');
 const DOCS = path.join(__dirname, 'docs');
+// Only image.novelai.net. The legacy api.novelai.net route was removed in 1.8.8 (NovelAI retires that
+// endpoint on 2026-11-21); /proxy/api/* now answers 410 without contacting anything.
 const UPSTREAMS = {
   image: 'https://image.novelai.net',
-  api: 'https://api.novelai.net',
 };
 if (process.env.NODE_ENV === 'test' && process.env.NF_TEST_UPSTREAM) {
   const upstream = new URL(process.env.NF_TEST_UPSTREAM);
   if (upstream.protocol !== 'http:' || !isLoopback(upstream.hostname) || upstream.username || upstream.password || upstream.pathname !== '/' || upstream.search || upstream.hash) {
     throw new Error('NF_TEST_UPSTREAM must be a loopback HTTP origin');
   }
-  UPSTREAMS.image = UPSTREAMS.api = upstream.origin;
+  UPSTREAMS.image = upstream.origin;
 }
 const MIME = {
   '.html': 'text/html; charset=utf-8',
@@ -375,7 +376,11 @@ async function handleRequest(req, res) {
       return res.end(JSON.stringify({ ok: true, version: VERSION, serverToken: !!process.env.NAI_TOKEN, upstreamProxy: UPSTREAM_PROXY ? UPSTREAM_PROXY.host : null }));
     }
     if (routePath.startsWith('/proxy/llm/')) return proxyLLM(req, res, routePath.slice('/proxy/llm'.length));
-    const m = routePath.match(/^\/proxy\/(image|api)(\/.*)$/);
+    if (routePath === '/proxy/api' || routePath.startsWith('/proxy/api/')) {
+      res.writeHead(410, { 'content-type': 'application/json', 'x-nf-outcome': 'not-sent' });
+      return res.end(JSON.stringify({ message: 'The legacy api.novelai.net route was removed (NovelAI retires it on 2026-11-21). Reload the page and restart node server.js.', outcome: 'not-sent' }));
+    }
+    const m = routePath.match(/^\/proxy\/(image)(\/.*)$/);
     if (m) return proxy(req, res, m[1], m[2] + search);
     await serveStatic(req, res, pathname);
   } catch {

@@ -95,7 +95,7 @@ test('R01/R04 proxy outcomes and response lifecycle', { timeout: 30000 }, async 
     await delay(30);
   }
   assert.ok(ready, output);
-  for (const target of ['image', 'api', 'llm']) {
+  for (const target of ['image', 'llm']) {
     const route = (scenario) => target === 'llm' ? '/proxy/llm/chat/completions' : `/proxy/${target}/${scenario}`;
     const headers = (scenario) => target === 'llm' ? { 'x-llm-base': `http://127.0.0.1:${upstreamPort}/${scenario}` } : {};
     // The LLM allowlist appends /chat/completions to the supplied base.
@@ -176,7 +176,7 @@ test('R01/R04 proxy outcomes and response lifecycle', { timeout: 30000 }, async 
   }
   await close(upstream);
   await t.test('connection refused before sending is not-sent', async () => {
-    for (const target of ['image', 'api', 'llm']) {
+    for (const target of ['image', 'llm']) {
       const res = await request(port, target === 'llm' ? '/proxy/llm/chat/completions' : `/proxy/${target}/reset`, {
         headers: target === 'llm' ? { 'x-llm-base': `http://127.0.0.1:${upstreamPort}` } : {},
       });

@@ -60,6 +60,6 @@ test('NF_UPSTREAM_PROXY still works when the browser sends no setting', async (t
   const fake = await fakeProxy(t);
   const { port, health } = await startServer(t, { NF_UPSTREAM_PROXY: `http://127.0.0.1:${fake.port}` });
   assert.equal(health.upstreamProxy, `127.0.0.1:${fake.port}`);
-  await request(port, '/proxy/api/user/subscription');
-  assert.deepEqual(fake.connects, ['api.novelai.net:443']);
+  await request(port, '/proxy/image/user/subscription');
+  assert.deepEqual(fake.connects, ['image.novelai.net:443']);
 });
